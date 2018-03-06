@@ -179,14 +179,14 @@ void Rendering::uninitialize()
 void Rendering::render()
 {
     static const auto colors = std::array<glm::vec3, 8>({{
-        glm::vec3(228,26,28) / glm::vec3(255),
-        glm::vec3(55,126,184) / glm::vec3(255),
-        glm::vec3(77,175,74) / glm::vec3(255),
-        glm::vec3(152,78,163) / glm::vec3(255),
-        glm::vec3(255,127,0) / glm::vec3(255),
-        glm::vec3(255,255,51) / glm::vec3(255),
-        glm::vec3(166,86,40) / glm::vec3(255),
-        glm::vec3(247,129,191) / glm::vec3(255)
+        glm::vec3(27,158,119) / glm::vec3(255),
+        glm::vec3(217,95,2) / glm::vec3(255),
+        glm::vec3(117,112,179) / glm::vec3(255),
+        glm::vec3(231,41,138) / glm::vec3(255),
+        glm::vec3(102,166,30) / glm::vec3(255),
+        glm::vec3(230,171,2) / glm::vec3(255),
+        glm::vec3(166,118,29) / glm::vec3(255),
+        glm::vec3(102,102,102) / glm::vec3(255)
     }});
 
     const auto numIterations = m_dataBuffer->size() / m_sensorCount;
@@ -208,6 +208,7 @@ void Rendering::render()
         gl::glUseProgram(0);
 
         gl::glPointSize(m_sensorCount > 8 ? 2.0f : 4.0f);
+        gl::glLineWidth(m_sensorCount > 16 ? 1.0f : 2.0f);
 
         gl::glBindVertexArray(m_plotVAO);
         gl::glBindBuffer(gl::GL_ARRAY_BUFFER, m_dataBuffer->gpuIdentifier());
