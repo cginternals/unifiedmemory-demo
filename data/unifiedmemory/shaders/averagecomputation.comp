@@ -1,0 +1,93 @@
+#version 450
+
+#extension GL_ARB_compute_variable_group_size : require
+
+layout (local_size_variable) in;
+
+layout(location=0) uniform int u_count;
+layout(location=1) uniform int u_stride;
+layout(location=2) uniform int u_availablePoints;
+
+layout (std430, binding = 0) buffer SubAverages
+{
+    vec4 subaverages[];
+};
+
+layout (std430, binding = 1) buffer SubMinimums
+{
+    vec4 subminimums[];
+};
+
+layout (std430, binding = 2) buffer SubMaximums
+{
+    vec4 submaximums[];
+};
+
+layout (std430, binding = 3) buffer Averages
+{
+    float averages[];
+};
+
+layout (std430, binding = 4) buffer Minimums
+{
+    float minimums[];
+};
+
+layout (std430, binding = 5) buffer Maximums
+{
+    float maximums[];
+};
+
+float average(in vec4 sum)
+{
+    return (sum.x + sum.y + sum.z + sum.w) / u_count;
+}
+
+float minimum(in vec4 subminimum)
+{
+    switch (u_availablePoints)
+    {
+    case 1:
+        return subminimum.x;
+    case 2:
+        return min(subminimum.x, subminimum.y);
+    case 3:
+        return min(min(subminimum.x, subminimum.y), subminimum.z);
+    case 4:
+        return min(min(subminimum.x, subminimum.y), min(subminimum.z, subminimum.w));
+    }
+}
+
+float maximum(in vec4 submaximum)
+{
+    /*switch (u_availablePoints)
+    {
+    case 1:
+        return submaximum.x;
+    case 2:
+        return max(submaximum.x, submaximum.y);
+    case 3:
+        return max(max(submaximum.x, submaximum.y), submaximum.z);
+    case 4:
+        return max(max(submaximum.x, submaximum.y), max(submaximum.z, submaximum.w));
+    }*/
+    return max(max(submaximum.x, submaximum.y), max(submaximum.z, submaximum.w));
+}
+
+void main()
+{
+    uint sensorIndex = gl_GlobalInvocationID.x;
+    
+    if (sensorIndex >= u_stride)
+    {
+        return;
+    }
+    
+    vec4 subaverage = subaverages[sensorIndex];
+    vec4 subminimum = subminimums[sensorIndex];
+    vec4 submaximum = submaximums[sensorIndex];
+    
+    averages[sensorIndex] = average(subaverage);
+    minimums[sensorIndex] = minimum(subminimum);
+    maximums[sensorIndex] = maximum(submaximum);
+}

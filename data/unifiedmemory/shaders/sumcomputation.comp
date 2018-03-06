@@ -1,0 +1,93 @@
+#version 450
+
+#extension GL_ARB_compute_variable_group_size : require
+
+layout (local_size_variable) in;
+
+layout(location=0) uniform int u_count;
+layout(location=1) uniform int u_stride;
+layout(location=2) uniform int u_availablePoints;
+
+layout (std430, binding = 0) buffer Averages
+{
+    vec4 averages[];
+};
+
+layout (std430, binding = 1) buffer Minimums
+{
+    vec4 minimums[];
+};
+
+layout (std430, binding = 2) buffer Maximums
+{
+    vec4 maximums[];
+};
+
+layout (std430, binding = 3) buffer SubAverages
+{
+    vec4 subaverages[];
+};
+
+layout (std430, binding = 4) buffer SubMinimums
+{
+    vec4 subminimums[];
+};
+
+layout (std430, binding = 5) buffer SubMaximums
+{
+    vec4 submaximums[];
+};
+
+vec4 sum(in vec4 avg1, in vec4 avg2, in uint min2Index)
+{
+    return avg1 + avg2;
+}
+
+vec4 minimum(in vec4 min1, in vec4 min2, in uint min2Index)
+{
+    return vec4(
+        min(min1.x, mix(min1.x, min2.x, float(min2Index+0 < u_availablePoints))),
+        min(min1.y, mix(min1.x, min2.y, float(min2Index+1 < u_availablePoints))),
+        min(min1.z, mix(min1.x, min2.z, float(min2Index+2 < u_availablePoints))),
+        min(min1.w, mix(min1.x, min2.w, float(min2Index+3 < u_availablePoints)))
+	);
+}
+
+vec4 maximum(in vec4 max1, in vec4 max2, in uint max2Index)
+{
+    /*return vec4(
+        max(max1.x, mix(max1.x, max2.x, float(max2Index+0 < u_availablePoints))),
+        max(max1.y, mix(max1.y, max2.y, float(max2Index+1 < u_availablePoints))),
+        max(max1.z, mix(max1.z, max2.z, float(max2Index+2 < u_availablePoints))),
+        max(max1.w, mix(max1.w, max2.w, float(max2Index+3 < u_availablePoints)))
+	);*/
+    return max(max1, max2);
+}
+
+void main()
+{
+    uint dataIndex = gl_GlobalInvocationID.x;
+    uint sensorIndex = gl_GlobalInvocationID.y;
+    uint stride = uint(u_count);
+    uint doubleStride = uint(2 * stride);
+    
+    if (dataIndex >= u_count || sensorIndex >= u_stride)
+    {
+        return;
+    }
+
+    uint firstReadIndex = doubleStride * sensorIndex + dataIndex;
+    uint secondReadIndex = doubleStride * sensorIndex + (stride + dataIndex);
+    uint writeIndex = stride * sensorIndex + dataIndex;
+    
+    vec4 avg1 = averages[firstReadIndex];
+    vec4 avg2 = averages[secondReadIndex];
+    vec4 min1 = minimums[firstReadIndex];
+    vec4 min2 = minimums[secondReadIndex];
+    vec4 max1 = maximums[firstReadIndex];
+    vec4 max2 = maximums[secondReadIndex];
+    
+    subaverages[writeIndex] = sum(avg1, avg2, 4 * (stride + dataIndex));
+    subminimums[writeIndex] = minimum(min1, min2, 4 * (stride + dataIndex));
+    submaximums[writeIndex] = maximum(max1, max2, 4 * (stride + dataIndex));
+}
