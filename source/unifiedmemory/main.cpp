@@ -9,7 +9,8 @@
 
 #include <glbinding/Binding.h>
 #include <glbinding/gl/gl.h>
-#include <glbinding/callbacks.h>
+#include <glbinding/glbinding.h>
+#include <glbinding-aux/types_to_string.h>
 
 #include "Computation.h"
 #include "Rendering.h"
@@ -57,7 +58,7 @@ void errorCallback(int errnum, const char * errmsg)
 
 void mainGL(GLFWwindow * window, std::istream * cin, bool saveScreenshots, bool printLog)
 {
-    glbinding::Binding::initialize(false);
+    glbinding::Binding::initialize(glfwGetProcAddress, false);
 
 #ifndef NDEBUG
     glbinding::setAfterCallback([](const glbinding::FunctionCall & /*functionCall*/) {
@@ -181,12 +182,12 @@ int main(int argc, char ** argv)
         input = stream;
     }
 
+    glfwSetErrorCallback(errorCallback);
+
     if (!glfwInit())
     {
         return 1;
     }
-
-    glfwSetErrorCallback(errorCallback);
 
     glfwDefaultWindowHints();
 

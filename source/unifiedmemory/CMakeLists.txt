@@ -95,6 +95,7 @@ target_link_libraries(${target}
     glfw
     glm
     glbinding::glbinding
+    glbinding::glbinding-aux
     cpplocate::cpplocate
 )
 

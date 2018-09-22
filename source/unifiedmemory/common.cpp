@@ -18,7 +18,6 @@
 #include <glbinding/gl/gl.h>
 
 #include <cpplocate/cpplocate.h>
-#include <cpplocate/utils.h>
 
 using namespace gl;
 
