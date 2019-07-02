@@ -47,7 +47,7 @@ int main(int argc, char * argv[])
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(nullptr);
 
-    const auto numSensors = argc > 1 ? std::atoi(argv[1]) : 1;
+    const auto numSensors = static_cast<std::size_t>(argc > 1 ? std::atoi(argv[1]) : 1);
     const auto sleepTime = argc > 2 ? std::chrono::microseconds(std::atoi(argv[2])) : 10000us;
 
     if (signal(SIGINT, sigint) == SIG_ERR)

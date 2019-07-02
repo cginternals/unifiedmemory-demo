@@ -53,7 +53,7 @@ std::vector<char> rawFromFile(const std::string & filePath)
     stream.seekg(0, std::ios::end);
 
     const auto size = stream.tellg();
-    auto raw = std::vector<char>(size);
+    auto raw = std::vector<char>(static_cast<std::size_t>(size));
 
     stream.seekg(0, std::ios::beg);
     stream.read(raw.data(), size);
@@ -74,10 +74,10 @@ std::vector<float> rawFromFileF(const std::string &filePath)
     stream.seekg(0, std::ios::end);
 
     const auto size = stream.tellg();
-    auto raw = std::vector<float>(size / sizeof(float));
+    auto raw = std::vector<float>(static_cast<std::size_t>(size) / sizeof(float));
 
     stream.seekg(0, std::ios::beg);
-    stream.read(reinterpret_cast<char *>(raw.data()), (size / sizeof(float)) * sizeof(float));
+    stream.read(reinterpret_cast<char *>(raw.data()), (static_cast<std::size_t>(size) / sizeof(float)) * sizeof(float));
 
     return raw;
 }
@@ -93,7 +93,7 @@ void setShaderSourceAndCompile(const GLuint shader, const std::string & filename
     const auto shaderSource = textFromFile(filename);
     const auto shaderSource_ptr = shaderSource.c_str();
     if (shaderSource_ptr)
-        gl::glShaderSource(shader, 1, &shaderSource_ptr, 0);
+        gl::glShaderSource(shader, 1, &shaderSource_ptr, nullptr);
 
     gl::glCompileShader(shader);
 }
@@ -109,13 +109,13 @@ bool checkForCompilationError(GLuint shader, const std::string & identifier)
     auto length = 0;
     glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
 
-    std::vector<char> log(length);
+    std::vector<char> log(static_cast<std::size_t>(length));
 
     glGetShaderInfoLog(shader, length, &length, log.data());
 
     std::cerr
         << "Compiler error in " << identifier << ":" << std::endl
-        << std::string(log.data(), length) << std::endl;
+        << std::string(log.data(), static_cast<std::size_t>(length)) << std::endl;
 
     return false;
 }
@@ -130,7 +130,7 @@ bool rawToFile(const std::string & filePath, const std::vector<char> & raw)
         return false;
     }
 
-    stream.write(raw.data(), raw.size());
+    stream.write(raw.data(), static_cast<std::streamsize>(raw.size()));
 
     return true;
 }
@@ -146,13 +146,13 @@ bool checkForLinkerError(GLuint program, const std::string & identifier)
     auto length = 0;
     glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
 
-    std::vector<char> log(length);
+    std::vector<char> log(static_cast<std::size_t>(length));
 
     glGetProgramInfoLog(program, length, &length, log.data());
 
     std::cerr
         << "Linker error in " << identifier << ":" << std::endl
-        << std::string(log.data(), length) << std::endl;
+        << std::string(log.data(), static_cast<std::size_t>(length)) << std::endl;
 
     return false;
 
