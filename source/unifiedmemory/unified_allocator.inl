@@ -24,7 +24,7 @@ unified_allocator<T, unified_flags>::allocate(size_type n, typename std::allocat
 
     auto res = pointer(nullptr);
 
-    if ((gl::GL_MAP_PERSISTENT_BIT & mapFlags) != gl::MapBufferUsageMask::GL_NONE_BIT)
+    if ((gl::GL_MAP_PERSISTENT_BIT & mapFlags) != gl::MapBufferAccessMask::GL_NONE_BIT)
     {
         res = reinterpret_cast<pointer>(gl::glMapNamedBufferRange(bufferId, 0, byteSize, mapFlags));
     }
@@ -48,7 +48,7 @@ unified_allocator<T, unified_flags>::deallocate(pointer p, size_type)
 
     if (bufferId > 0)
     {
-        if ((gl::GL_MAP_PERSISTENT_BIT & mapFlags) != gl::MapBufferUsageMask::GL_NONE_BIT)
+        if ((gl::GL_MAP_PERSISTENT_BIT & mapFlags) != gl::MapBufferAccessMask::GL_NONE_BIT)
         {
             gl::glUnmapNamedBuffer(bufferId);
         }
