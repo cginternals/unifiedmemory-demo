@@ -18,7 +18,7 @@ template <typename T>
 void unified_vector<T>::startWait() const
 {
     gl::glMemoryBarrier(gl::GL_CLIENT_MAPPED_BUFFER_BARRIER_BIT);
-    m_sync = gl::glFenceSync(gl::GL_SYNC_GPU_COMMANDS_COMPLETE, gl::UnusedMask::GL_UNUSED_BIT);
+    m_sync = gl::glFenceSync(gl::GL_SYNC_GPU_COMMANDS_COMPLETE, static_cast<gl::GLbitfield>(gl::UnusedMask::GL_UNUSED_BIT));
 }
 
 template <typename T>
@@ -74,7 +74,7 @@ template <typename T>
 void unified_read_vector<T>::startWait() const
 {
     gl::glMemoryBarrier(gl::GL_CLIENT_MAPPED_BUFFER_BARRIER_BIT);
-    m_sync = gl::glFenceSync(gl::GL_SYNC_GPU_COMMANDS_COMPLETE, gl::UnusedMask::GL_UNUSED_BIT);
+    m_sync = gl::glFenceSync(gl::GL_SYNC_GPU_COMMANDS_COMPLETE, static_cast<gl::GLbitfield>(gl::UnusedMask::GL_UNUSED_BIT));
 }
 
 template <typename T>
